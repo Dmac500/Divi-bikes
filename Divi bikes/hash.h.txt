@@ -1,0 +1,20 @@
+/*hash.h*/
+
+//
+// Prof. Joe Hummel
+// U. of Illinois, Chicago
+// CS 251: Spring 2020
+// 
+// Lab Week 11: hashing of dates and lottery numbers (SOLUTION)
+// 
+
+#include <string>
+
+using namespace std;
+
+bool isNumeric(string s);
+int Hash(string theDate, int N);
+int Hashabb(string abb, size_t N);
+int HashID(string ID, int N);
+int HashTrip(string trip , int N);
+int HashBike(string Bike , int N);

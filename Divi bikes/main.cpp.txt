@@ -1,0 +1,815 @@
+/*main.cpp*/
+
+//
+// Prof. Joe Hummel
+// U. of Illinois, Chicago
+// CS 251: Spring 2020
+// 
+// Lab Week 11: hashing of dates and lottery numbers (SOLUTION)
+// 
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+#include "hash.h"
+#include "hashmap.h"
+#include "util.h"
+#include "prioritize.h"
+#include <queue>
+#include <utility>
+#include <set>
+
+using namespace std;
+
+
+//
+// LotteryData
+// 
+// Mega millions lottery winning numbers which is 
+// 5 numbers + mega ball number + possible multiplier.
+// 
+struct LotteryData
+{
+	string Numbers;
+	string MegaBall;
+	string Multiplier;
+	
+	LotteryData()
+	{
+		Numbers = "";
+		MegaBall = "";
+		Multiplier = "";
+	}
+};
+struct ID
+{
+  string Id;
+  string Abbiv;
+  string fullName;
+  string lat;
+  string lon;
+  string cap;
+  string date;
+    ID()
+    {
+   Id = "";
+   Abbiv = "";
+   fullName = "";
+   lat = "";
+   lon = "";
+   cap = "";
+   date = "";        
+    }
+};
+struct Trip
+{
+ string tripNum;
+ string startTime;
+ string endTime;
+ string BikeID;
+ string duration;
+ string from;
+ string to;
+ string sex;
+ string birthYear;
+     Trip(){
+ tripNum  = "";
+ startTime = "";
+ endTime = "";
+ BikeID = "";
+ duration = "";
+ from = "";
+ to = "";
+ sex ="";
+ birthYear= "";
+    
+     }
+    
+};
+struct Bike
+{
+    bool exist;
+    string bike;
+    int  used;
+    Bike()
+    { 
+        exist = false;
+        bike = "";
+        used = 0; 
+    }
+    
+    
+    
+};
+
+//
+// string2int
+// 
+// Converts a string to an integer, unless string is empty, in
+// which case 0 is returned.
+// 
+int string2int(string s)
+{
+	if (s == "")
+		return 0;
+	else
+		return stoi(s);
+}
+
+//
+// inputData
+// 
+// Given a filename denoting lottery winning numbers,
+// inputs that data into the given hash table.
+// 
+// bool inputData(string filename, hashmap<string, LotteryData>& hmap)
+// {
+// 	ifstream  infile(filename);
+	
+// 	cout << "Reading " << filename << endl;
+	
+// 	if (!infile.good())
+// 	{
+// 		cout << "**Error: unable to open '" << filename << "'..." << endl;
+// 		return false;
+// 	}
+	
+// 	// file is open, start processing:
+// 	string line;
+	
+// 	getline(infile, line);  // input and discard first row --- header row
+	
+// 	int count = 0;
+	
+// 	while (getline(infile, line))
+// 	{
+// 		stringstream s(line);
+		
+// 		string thedate, numbers, megaball, multiplier;
+		
+// 		//
+// 		// format: date,xx xx xx xx xx,yy,z
+// 		// 
+// 		// NOTE: z may be missing (the multiplier)
+// 		// 
+// 		getline(s, thedate, ',');  // first value => region
+// 		getline(s, numbers, ',');   // second value => country
+// 		getline(s, megaball, ',');
+// 		getline(s, multiplier, ',');
+		
+// 		// we have input the 4 values, and since we are not
+// 		// doing any arithmetic, we can just store them as
+// 		// strings.  If the multiplier is missing then the
+// 		// string is "", which is fine.
+		
+// 		//
+// 		// store into hash table
+// 		// 
+// 		LotteryData  ld;
+		
+// 		ld.Numbers = numbers;
+// 		ld.MegaBall = megaball;
+// 		ld.Multiplier = multiplier;
+
+// 		hmap.insert(thedate, ld, Hash);
+		
+// 		count++;
+// 	}
+	
+// 	cout << "# data lines: " << count << endl;
+	
+// 	return true;  // we have data to be processed:
+//}
+bool inputDatastations (string filename, hashmap<string, string>& abbmap, hashmap<string, ID>& IDmap, int& count ) // to fill the Id and abbreviation Hashmap
+{
+	ifstream  infile(filename);
+	
+	cout << "Reading " << filename << endl;
+	
+	if (!infile.good())
+	{
+		cout << "**Error: unable to open '" << filename << "'..." << endl;
+		return false;
+	}
+	
+	// file is open, start processing:
+	string line;
+	
+	getline(infile, line);  // input and discard first row --- header row
+	
+	//int count = 0;
+	
+	while (getline(infile, line))
+	{
+		stringstream s(line);
+		
+		string Id, abb, name, lat, lon , cap, date;
+		
+		//
+		// format: date,xx xx xx xx xx,yy,z
+		// 
+		// NOTE: z may be missing (the multiplier)
+		// 
+		getline(s, Id, ',');  // first value => region
+		getline(s, abb, ',');   // second value => country
+		getline(s, name, ',');
+		getline(s, lat, ',');
+        getline(s, lon, ',');
+        getline(s, cap, ',');
+        getline(s, date, ',');
+		
+		// we have input the 4 values, and since we are not
+		// doing any arithmetic, we can just store them as
+		// strings.  If the multiplier is missing then the
+		// string is "", which is fine.
+		
+		//
+		// store into hash table
+		// 
+		ID data;
+		
+	    data.Id = Id;
+		data.Abbiv = abb;
+		data.fullName = name;
+        data.lat = lat;
+        data.lon = lon;
+        data.cap = cap;
+        data.date = date;
+
+		abbmap.insert(abb , Id , Hashabb);
+        IDmap.insert(Id , data , HashID);
+		
+		count++;
+        //cout << abb << endl;
+	}
+	
+// 	cout << "# of stations: " << count << endl;
+	
+	return true;  // we have data to be processed:
+}
+bool inputDatetrips (string filename, hashmap<string, Trip>& Tripmap, hashmap<string, Bike>& Bikemap, int& count, int& Bikecount ) // filling up the bike and trip hashmap
+{
+	ifstream  infile(filename);
+	
+	cout << "Reading " << filename << endl;
+	
+	if (!infile.good())
+	{
+		cout << "**Error: unable to open '" << filename << "'..." << endl;
+		return false;
+	}
+	
+	// file is open, start processing:
+	string line;
+	
+	getline(infile, line);  // input and discard first row --- header row
+	
+	
+	while (getline(infile, line))
+	{
+		stringstream s(line);
+		
+		string trip, start, end, bike, time , from,to,sex,yob;
+		
+		//
+		// format: date,xx xx xx xx xx,yy,z
+		// 
+		// NOTE: z may be missing (the multiplier)
+		// 
+		getline(s, trip, ',');  // first value => region
+		getline(s, start, ',');   // second value => country
+		getline(s, end, ',');
+		getline(s, bike, ',');
+        getline(s, time, ',');
+        getline(s, from, ',');
+        getline(s, to, ',');
+        getline(s, sex, ',');
+        getline(s, yob, ',');
+		
+		// we have input the 4 values, and since we are not
+		// doing any arithmetic, we can just store them as
+		// strings.  If the multiplier is missing then the
+		// string is "", which is fine.
+		
+		//
+		// store into hash table
+		// 
+		Trip data;
+		Bike Bdata;
+            
+            
+	    data.tripNum = trip;
+		data.startTime= start;
+		data.endTime = end;
+        data.BikeID = bike;
+        data.duration = time;
+        data.from = from;
+        data.to = to;
+        data.sex = sex;
+        data.birthYear = yob;
+        Bdata.bike = bike;
+         if(Bikemap.search(bike , Bdata , HashBike))
+         {
+             Bdata.used = 1 + Bdata.used;
+            
+         }
+        else {
+         Bdata.used = 1;
+          Bikecount++;
+        }
+       
+        
+        
+		Tripmap.insert(trip , data, HashTrip);
+        Bikemap.insert(bike , Bdata , HashBike);
+    
+		
+		count++;
+        //cout << abb << endl;
+	}
+	
+// 	cout << "# of trips: " << count << endl;
+// 	cout << "# of bikes: " << Bikecount << endl;
+	return true;  // we have data to be processed:
+}
+void help() // just the help menu
+{
+    cout << "Available commands: "<< endl;
+    cout<< " Enter a station id (e.g. 341)"<<endl;
+    cout <<" Enter a station abbreviation (e.g Adler)"<< endl;
+    cout << " Enter a trip id (e.g Tr10426561)"<<endl;
+    cout << " Enter a bike id (e.g. B5218)"<<endl;
+    cout << " Nearby stations(e.g. nearby 41.86 -87.62 0.5)" << endl;
+    cout << " Similar trips (e.g. similar Tr10424639 0.3)" << endl;
+    
+    
+    
+}
+int secondsToMins(string Time)// helper for mins
+{
+    int time  = stoi(Time);
+        return time / 60;
+}
+int remainingSeconds(string Time) //helper for the second
+{
+    int time  = stoi(Time);
+        return time % 60;
+}
+void Stations(string& abb, string& Id , hashmap<string, ID>& IDmap , string IDNumber)
+{
+    ID stuff;
+    IDmap.search(IDNumber,stuff,HashID);
+    abb = stuff.Abbiv;
+    Id = stuff.Id;
+}
+
+ void nearbystations(string lat, string lon , string miles ,hashmap<string, ID>& IDmap) // this is to find near bu stations from where you are .
+    {
+        ID ld;
+   
+       
+     double Lat = stod(lat);// user input
+     double Lon = stod(lon);
+     double Miles = stod(miles);
+     vector<string> vec = IDmap.KeyVector();
+         priority_queue<pair<string , double> ,
+       vector<pair<string,double>>
+        ,prioritize > pq;
+      int  size = vec.size();
+       cout<< "Stations within " << miles << " miles of ("<< lat << ", " << lon << ")"<< endl;
+       for(int i = 0 ; i < size; i++) // loops through and gets ID keys.
+       {
+           
+           if(IDmap.search(vec[i],ld, HashID)) // look for the lat and long in the ID stuct
+           {
+              double lat2 = stod(ld.lat);
+              double lon2 = stod(ld.lon);
+            
+               double distance = distBetween2Points(Lat,Lon,lat2,lon2); //calculate the distance you are from the other lat and long 
+              if( distance <= Miles)
+              {
+                  pq.push(make_pair(ld.Id,distance)); // put into a priority queue and oginized from closest to farthest.
+             
+              }
+           }
+       }
+       if (pq.empty())
+       {
+           cout << " none found "<<endl;
+       }
+            while (!pq.empty())
+  {
+          
+    auto p = pq.top();
+    pq.pop();
+   cout << " station " << p.first << ": " <<  p.second << " miles"<<endl;
+  
+            }
+       
+        
+        
+        
+    }
+void tripdata( hashmap<string, Trip>& Tripmap ,hashmap<string, ID>& IDmap , string input ){ // this is the data for trip data
+    
+        Trip Tp;
+         bool found = Tripmap.search(input, Tp, HashTrip);
+        
+        if (!found)
+     {
+      cout << "Trip not found" << endl;
+     }
+    else
+       {
+        string FstationID, FstationAbb , TstationID, TstationAbb ;
+          Stations(FstationAbb,FstationID,IDmap,Tp.from);
+       Stations(TstationAbb,TstationID,IDmap,Tp.to);
+      
+	  cout << "Trip:"<<endl;
+      cout << " ID: " << Tp.tripNum << endl;
+      cout << " starttime: " << Tp.startTime << endl;
+      cout << " Bikeid: " << Tp.BikeID << endl;
+      cout << " Duration: " <<secondsToMins(Tp.duration) << " Minutes" << ", " << remainingSeconds(Tp.duration) << "  Seconds"<< endl;
+      cout << " From station: " << FstationAbb<< " ("<<FstationID<<")" << endl;
+      cout << " To station: " << TstationAbb<< " ("<<TstationID<<")" << endl;
+      cout << " Rider identifies as: "<< Tp.sex<<endl;
+      cout << " Birthyear: "<< Tp.birthYear<<endl;
+         }
+        
+    
+}
+void bikeData (  hashmap<string, Bike> &Bikemap, string input){ // this is the command to find the bike data.
+     Bike BB;
+         bool found4 = Bikemap.search(input, BB, HashBike);
+        
+        if (!found4)
+     {
+      cout << "Bike not found" << endl;
+     }
+        else 
+        {
+            cout << "Bike: "<<endl;
+            cout << " ID: " << BB.bike<<endl;
+            cout << " Usage: " << BB.used<<endl;
+        }
+        
+    }
+
+void IDdata( hashmap<string, ID>& IDmap , string input){ //  this is the command to find the IDS 
+      ID ld; 
+    
+       bool foundID = IDmap.search(input, ld, HashID);
+
+    if (!foundID)
+    {
+      cout << "Station not found" << endl;
+    }
+    else
+    {
+       double Lat = stod(ld.lat);
+      double Lon = stod(ld.lon);
+         
+	  cout << "Station:"<<endl;
+      cout << " ID: " << ld.Id << endl;
+      cout << " Abbrev: " << ld.Abbiv << endl;
+      cout << " Fullname: " << ld.fullName << endl;
+      cout << " Location: " <<"(" << Lat << ", " << Lon << ")" << endl;
+      cout << " Capacity: " << ld.cap << endl;
+      cout << " Online Date: " << ld.date << endl;
+        
+    }
+        
+}
+void stationData(hashmap<string, string>& abbmap, hashmap<string, ID>& IDmap ,string input){ // this is the command to find the abbrivation 
+        ID ld;
+       string Id;
+        bool foundABB = abbmap.search(input ,Id, Hashabb);
+
+  
+       if (!foundABB)
+    {
+      cout << "Station not found" << endl;
+    }
+    else
+    {
+       IDmap.search(Id,ld,HashID);
+	  double Lat = stod(ld.lat);
+      double Lon = stod(ld.lon);
+      cout << "Station:"<<endl;
+      cout << " ID: " << ld.Id << endl;
+      cout << " Abbrev: " << ld.Abbiv << endl;
+      cout << " Fullname: " << ld.fullName << endl;
+      cout << " Location: " <<"(" << Lat << ", " << Lon << ")" << endl;
+      cout << " Capacity: " << ld.cap << endl;
+      cout << " Online Date: " << ld.date << endl;
+        
+        
+    }
+}
+void simTrips(string miles, string trip, hashmap<string, Trip> &Tripmap , hashmap<string, ID> &IDmap){ // command for simular trips 
+   
+    cout <<"Trips that follow a similar path (+/-"<< miles << " miles) as "<< trip<< endl;// 
+    ID id;
+    Trip data;
+    vector<string> vec = IDmap.KeyVector();
+     vector<string> vecTrip = Tripmap.KeyVector();
+    int size = vec.size();
+    set<int> start;
+    set<int> end;
+    int count = 0;
+    double SLat = 0.0;
+    double SLon = 0.0;
+    double ELon = 0.0;
+    double ELat = 0.0;
+    double SLat2 = 0.0;
+    double SLon2 = 0.0;
+    double ELat2 = 0.0;
+    double ELon2 = 0.0;
+    double Miles = stod(miles);
+    double enddistance = 0.0;
+      double startdistance= 0.0;
+    double enddistance2 = 0.0;
+      double startdistance2= 0.0;
+    if (Tripmap.search(trip, data, HashTrip)) // search to make sure trip is valid.
+    {
+       string startId = data.from;
+       string endID = data.to;
+       
+          if (IDmap.search(startId, id, HashID)) // storing the from station ID and the TO station ID
+          {
+           SLat = stod(id.lat);
+           SLon = stod(id.lon);
+          }
+                if (IDmap.search(endID, id, HashID))
+                {
+               ELat = stod(id.lat);
+               ELon = stod(id.lon);
+                }
+        
+    }
+    else{
+        cout <<" no such trip"<<endl;// if trip is not found 
+        return;
+    }
+    
+    for(int i = 0; i < size;i++) // vector of trips
+    {
+
+        if(IDmap.search(vec[i], id, HashID)) // to pull the start and end ids out of each one.
+        {
+
+           SLat2 = stod(id.lat);
+           SLon2 = stod(id.lon);
+          
+
+                  enddistance = distBetween2Points(ELat,ELon,SLat2,SLon2);// nearby endpoints
+             
+            
+             if( enddistance <= Miles )
+              { 
+                 
+                 int idn = stoi(id.Id);
+                 end.insert(idn);
+             
+              } 
+                
+            
+             startdistance = distBetween2Points(SLat,SLon,SLat2,SLon2); // nearby start points 
+             
+                  if( startdistance <= Miles)
+              {
+                      int idn = stoi(id.Id);
+                 start.insert(idn);
+             
+              }
+       
+
+        
+    }
+    }
+   int  size2 = vecTrip.size();
+    if (Tripmap.search(trip, data, HashTrip)) // search to make sure trip is valid.
+    {
+       string startId = data.from;
+       string endID = data.to;
+       
+          if (IDmap.search(startId, id, HashID)) // storing the from station ID and the TO station ID
+          {
+           SLat = stod(id.lat);
+           SLon = stod(id.lon);
+          }
+                if (IDmap.search(endID, id, HashID))
+                {
+               ELat = stod(id.lat);
+               ELon = stod(id.lon);
+                }
+        
+    }
+    for(int i = 0; i<size2;i++) // this is just to get the count of nearby stations 
+    {
+        if(Tripmap.search(vecTrip[i], data, HashTrip))
+        {
+            string nearbyEID = data.to;
+            string nearbySID = data.from;
+        
+        
+       
+          if (IDmap.search( nearbySID, id, HashID))
+                 {
+              SLat2 = stod(id.lat);
+              SLon2 = stod(id.lon);
+              startdistance2 = distBetween2Points(SLat,SLon,SLat2,SLon2);
+                }
+                   if (IDmap.search( nearbyEID, id, HashID))
+                 {
+              ELat2 = stod(id.lat);
+              ELon2 = stod(id.lon);
+                           enddistance2 = distBetween2Points(ELat,ELon,ELat2,ELon2);
+                }
+        
+     
+         
+        
+        
+        
+                            if( startdistance2 <= Miles &&  enddistance2 <= Miles)
+                            {
+                             count++;
+                             }
+        
+        
+        }
+    }
+     
+            cout << " nearby starting points:";// start display
+                for(int e : start)
+                {
+                    cout << " "<< e ;
+                }
+    cout<<endl;
+    
+            cout << " nearby ending points:"; //endl display 
+                for(int e : end)
+                {
+                    cout << " "<< e ;
+                }
+cout << endl;
+    cout << " trip count: " << count; 
+
+}
+int main()
+{
+	cout << "** DIVVY analysis program **" << endl;
+	cout << endl;
+
+	//
+	// Allocate our hash table: 12 * 31 * 100 = 37,200
+	// possible permutations:
+	//  maps need in the project
+	const int N = 37200;
+    const int P = 10000;
+    const int Q = 2500000;
+    const int W = 50000;
+	   hashmap<string, LotteryData> hmap(N);
+       hashmap<string, string> abbmap(P);
+       hashmap<string, ID> IDmap(P);
+       hashmap<string, Trip> Tripmap(Q);
+       hashmap<string, Bike>Bikemap(W);
+
+    
+    
+    
+    
+    
+    
+    
+	// input the winning numbers:
+	string stationFile, Tripfile;
+	cout <<"Enter stations file> ";
+    getline(cin, stationFile);
+    cout<<"Enter trips file> ";
+    getline(cin, Tripfile);
+    cout<<endl;
+   
+   // cout << "Reading "<< stationFile << endl;
+    //cout << "Reading "<< Tripfile<< endl;
+	
+    int countS = 0;
+    int countT = 0;
+    int countB = 0;
+    
+	//bool success = inputData(filename, hmap);
+	bool test = inputDatastations(stationFile, abbmap, IDmap, countS);
+    bool test2 = inputDatetrips(Tripfile,Tripmap, Bikemap , countT, countB);
+	//
+	// did we input anything?
+	// 
+	if (!test)
+	{
+		cout << "No data, file not found?" << endl;
+		return 0;
+	}
+    	if (!test2)
+	{
+		cout << "No data, file not found?" << endl;
+		return 0;
+	}
+	
+    cout << endl  ;
+   
+    
+    cout << "# of stations: " << countS << endl; //amount of stations 
+  	cout << "# of trips: " << countT << endl; // amount of trips
+ 	cout << "# of bikes: " << countB << endl;// amount of Bikes 
+    
+    cout << endl;
+    
+    
+   
+   
+
+    string input;
+ 	cout << "Please enter a command, help, or #> ";
+    getline(cin,input);
+
+    
+  
+
+
+	while (input != "#")
+	{
+         string TripTester;
+             string TripNum;
+             string Bikenum;
+         if(input.length() >= 2){
+     TripTester = input.substr(0,2);
+    TripNum = input.substr(2,input.length());
+     Bikenum= input.substr(1,input.length());
+         }
+         string command ,lat ,lon , miles , trip;
+        stringstream s(input);
+         getline(s,command,' ');
+      
+    
+    
+
+		//
+		// we have a date, let's look in hash table and
+		// see if we have any data:
+		// 
+  //  Trip Tp;
+   // ID ld;
+   
+   if (command == "nearby")
+   {
+         getline(s, lat, ' ');
+     getline(s, lon, ' ');
+     getline(s, miles, ' '); 
+      nearbystations(lat , lon, miles , IDmap);  
+   }
+    else if (command == "help")
+    {
+        help();
+        
+    }
+    else if(command == "similar")
+    {
+        getline(s, trip, ' '); 
+        getline(s, miles, ' ');
+        
+      simTrips( miles, trip, Tripmap ,IDmap);
+      //  simTrips(string trip, string miles);
+    }
+   else if(command[0] == 'T' && command[1] == 'r' && isNumeric(TripNum)) 
+    {
+       tripdata(Tripmap ,IDmap, input);
+   }
+    else if(command[0] == 'B' && isNumeric(Bikenum))
+    {
+         bikeData(Bikemap, input);
+    }
+    else if(isNumeric(command))
+    {
+       IDdata(IDmap, input);
+    }
+   else if(!isNumeric(command))
+   {
+      
+     stationData(abbmap,IDmap, input);
+   }//else if for ABB
+  
+		cout << endl;
+	cout << "Please enter a command, help, or #> ";
+    getline(cin,input);
+
+	}//while loop
+	
+	//
+	// done!
+	// 
+	
+	
+	return 0;
+}
